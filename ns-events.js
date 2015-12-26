@@ -41,6 +41,8 @@
       this._bind_lib[eventType][ns].push(listenerCallback);
       var l = this._bind_lib[eventType][ns].length;
       this.addEventListener(eventType, this._bind_lib[eventType][ns][l - 1]);
+
+      return this;
     });
     protify('unbind', function(eventExpr) {
       eventExpr = parseEvtExpr(eventExpr);
@@ -48,10 +50,12 @@
 
       var removeNamespaced = (function(context) {
         return function(evtType, _namespace){
-          for (var i in context._bind_lib[evtType][_namespace]) {
-            context.removeEventListener(evtType, context._bind_lib[evtType][_namespace][i]);
+          if (context._bind_lib[evtType]) {
+            for (var i in context._bind_lib[evtType][_namespace]) {
+              context.removeEventListener(evtType, context._bind_lib[evtType][_namespace][i]);
+            }
+            delete context._bind_lib[evtType][_namespace];
           }
-          delete context._bind_lib[evtType][_namespace];
         };
       }(this));
 
@@ -64,5 +68,7 @@
       } else {
         removeNamespaced(eventType, ns);
       }
+
+      return this;
     });
   }(!!document.attachEvent));
