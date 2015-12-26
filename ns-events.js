@@ -23,24 +23,23 @@
       });
     }
 
-    protify('_bind_lib', {});
+    protify('_bdlib', {});
     protify('bind', function(eventExpr, listenerCallback){
 
       //at first we need to make the function public
       eventExpr = parseEvtExpr(eventExpr);
       var eventType = eventExpr[0], ns = eventExpr[1];
 
-      if (this._bind_lib[eventType] == undefined) {
-        this._bind_lib[eventType] = {}; //HashMap<KeyStr,Array<Function>>
+      if (this._bdlib[eventType] == undefined) {
+        this._bdlib[eventType] = {}; //HashMap<KeyStr,Array<Function>>
       }
 
-      if (this._bind_lib[eventType][ns] == undefined) {
-        this._bind_lib[eventType][ns] = []; //Array<Function>
+      if (this._bdlib[eventType][ns] == undefined) {
+        this._bdlib[eventType][ns] = []; //Array<Function>
       }
 
-      this._bind_lib[eventType][ns].push(listenerCallback);
-      var l = this._bind_lib[eventType][ns].length;
-      this.addEventListener(eventType, this._bind_lib[eventType][ns][l - 1]);
+      this._bdlib[eventType][ns].push(listenerCallback);
+      this.addEventListener(eventType, this._bdlib[eventType][ns][this._bdlib[eventType][ns].length - 1]);
 
       return this;
     });
@@ -50,11 +49,11 @@
 
       var removeNamespaced = (function(context) {
         return function(evtType, _namespace){
-          if (context._bind_lib[evtType]) {
-            for (var i in context._bind_lib[evtType][_namespace]) {
-              context.removeEventListener(evtType, context._bind_lib[evtType][_namespace][i]);
+          if (context._bdlib[evtType]) {
+            for (var i in context._bdlib[evtType][_namespace]) {
+              context.removeEventListener(evtType, context._bdlib[evtType][_namespace][i]);
             }
-            delete context._bind_lib[evtType][_namespace];
+            delete context._bdlib[evtType][_namespace];
           }
         };
       }(this));
@@ -62,7 +61,7 @@
       if (ns=='__a__') {
         //run through ALL namespaced ones of type "eventType" and remove ALL
         //events
-        for (var key in this._bind_lib[eventType]) {
+        for (var key in this._bdlib[eventType]) {
           removeNamespaced(eventType, key);
         }
       } else {
